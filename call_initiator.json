@@ -1,0 +1,370 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        -48
+      ],
+      "id": "c10801a5-f0fe-478d-8423-caf8b17bfa13",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1-d5rxaDYx8iR2inwUA76b4gEXJXHGKF4Nt4x4-w4dKw",
+          "mode": "list",
+          "cachedResultName": "AI Calling System - Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-d5rxaDYx8iR2inwUA76b4gEXJXHGKF4Nt4x4-w4dKw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-d5rxaDYx8iR2inwUA76b4gEXJXHGKF4Nt4x4-w4dKw/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Lead Status",
+              "lookupValue": "Scheduled"
+            },
+            {
+              "lookupColumn": "status",
+              "lookupValue": "Pending"
+            },
+            {
+              "lookupColumn": "Scheduled Call Date",
+              "lookupValue": "={{ $today.format('dd/MM/yyyy') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -352,
+        -48
+      ],
+      "id": "f1d973b5-30e4-4cc0-bf01-8a378b4a5f85",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7TFrM5sp3PVIsOyy",
+          "name": "prem's google sheet credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vapi.ai/call/phone",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 7b331d93-834b-4f0f-8662-e7ef14b3b238"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"assistantId\": \"47e63160-ac50-437b-ad7e-ffbca371f0f2\",\n  \"phoneNumberId\": \"a004d60d-9e51-4e3e-b3c8-14439426f504\",\n  \"customer\": {\n    \"number\": \"+91{{ $json.number }}\"\n  },\n  \"assistantOverrides\": {\n    \"variableValues\": {\n      \"candidateName\": \"{{ $json.name }}\",\n      \"experience\": \"{{ $json.Experience }}\"\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        432,
+        -32
+      ],
+      "id": "09ac97c7-ac37-44ca-8412-8233ea236ea1",
+      "name": "initiate vapi assistant"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        144,
+        -48
+      ],
+      "id": "6458cad1-d784-4642-8148-bc6d65b1a6cb",
+      "name": "Loop Over Items",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "437a0240-1500-49d5-8049-1882629d4bfd",
+              "leftValue": "={{ $now.hour < $json['Scheduled Call Time'].toDateTime().hour }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "85611beb-9ed3-4851-bf8f-199cddfe817f",
+              "leftValue": "={{ $now.hour > $json['Scheduled Call Time'].toDateTime().hour || $now.hour === $json['Scheduled Call Time'].toDateTime().hour }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "0c14e2a5-ac36-44ba-b928-9d981255c76b",
+              "leftValue": "={{ $now.hour === $json['Scheduled Call Time'].toDateTime().hour?$now.minute >= $json['Scheduled Call Time'].toDateTime().minute:true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        -48
+      ],
+      "id": "ea525333-6669-4aec-bcad-cc4c883f0edc",
+      "name": "Filter",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1-d5rxaDYx8iR2inwUA76b4gEXJXHGKF4Nt4x4-w4dKw",
+          "mode": "list",
+          "cachedResultName": "AI Calling System - Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-d5rxaDYx8iR2inwUA76b4gEXJXHGKF4Nt4x4-w4dKw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-d5rxaDYx8iR2inwUA76b4gEXJXHGKF4Nt4x4-w4dKw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "Calling",
+            "email": "={{ $('Loop Over Items').item.json.email }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "number",
+              "displayName": "number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Lead Status",
+              "displayName": "Lead Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Experience",
+              "displayName": "Experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Scheduled Call Date",
+              "displayName": "Scheduled Call Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Scheduled Call Time",
+              "displayName": "Scheduled Call Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        -32
+      ],
+      "id": "c062a9bd-daf6-48a0-b418-4f44ceaa8ad1",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7TFrM5sp3PVIsOyy",
+          "name": "prem's google sheet credential"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "initiate vapi assistant": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "initiate vapi assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bc958a726789a822ed5a754b2b3d94f96f07e1595b27f5f62f0ec3fab2588497"
+  }
+}
