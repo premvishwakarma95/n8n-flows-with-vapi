@@ -1,0 +1,556 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "98ea07e7-72f4-4cca-a222-b208fb9044c0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1824,
+        -880
+      ],
+      "id": "450c8feb-a8e2-457b-b172-6f82b47c1785",
+      "name": "Webhook",
+      "webhookId": "98ea07e7-72f4-4cca-a222-b208fb9044c0"
+    },
+    {
+      "parameters": {
+        "amount": 120
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1664,
+        -880
+      ],
+      "id": "24ee01c5-a931-4a18-98f5-f325d278c048",
+      "name": "Wait",
+      "webhookId": "215b543b-4324-49ca-87ed-4c43b8dbe55e"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "hours"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        -704
+      ],
+      "id": "e3c89372-d4bd-46ed-b3b5-46690cd617c9",
+      "name": "Wait1",
+      "webhookId": "29935b9c-fa68-4589-bb4c-fe04c6152942"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $item(\"0\").$node[\"If\"].json[\"endedReason\"] }}",
+                    "rightValue": "customer-did-not-answer",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Un Answered"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9e01f76d-1a81-40c8-b8bc-df7a30758c97",
+                    "leftValue": "={{ $item(\"0\").$node[\"If\"].json[\"endedReason\"] }}",
+                    "rightValue": "customer-ended-call",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1136,
+        -880
+      ],
+      "id": "267e1179-e005-4e10-adb3-5a2f629ed41f",
+      "name": "switch"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $item(\"0\").$node[\"switch\"].json[\"assistantOverrides\"][\"variableValues\"][\"attempt\"] }}",
+                    "rightValue": "1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "1st"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "60d1f553-fa16-4c78-8608-35a5896f94e2",
+                    "leftValue": "={{ $item(\"0\").$node[\"switch\"].json[\"assistantOverrides\"][\"variableValues\"][\"attempt\"] }}",
+                    "rightValue": "2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "2nd"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -880,
+        -880
+      ],
+      "id": "78dbcc7a-ddd1-4645-9b0a-ce201e311f46",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://rest.gohighlevel.com/v1/contacts/",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Authorization\":\"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2NhdGlvbl9pZCI6InRKYTZYamgwaWpVaTZzbGZUUEZmIiwidmVyc2lvbiI6MSwiaWF0IjoxNzQ0MTEzMzU0NzU3LCJzdWIiOiJneUoxTjVmUmpMcUNObmdvdXpxUiJ9.qfgmQ6DDk8b2S_ohcBRgP1bQ1ZhrERzloPEvF52o7eQ\",\n  \"Content-Type\" : \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={\n    \"id\":\"{{ $item(\"0\").$node[\"Merge\"].json[\"assistantOverrides\"][\"variableValues\"][\"contact_id\"] }}\" ,\n    \"email\": \"{{ $item(\"0\").$node[\"Merge\"].json[\"assistantOverrides\"][\"variableValues\"][\"email\"] }}\",\n    \"phone\": \"{{ $item(\"0\").$node[\"Merge\"].json[\"assistantOverrides\"][\"variableValues\"][\"phone\"] }}\",\n    \"customField\": {\n        \"interview_status\": \"Inactive\",\n        \"followup_status\": \"{{ $item(\"0\").$node[\"Merge\"].json[\"assistantOverrides\"][\"variableValues\"][\"attempt\"] }} followup sms sent\",\n        \"call_status\": \"{{ $item(\"0\").$node[\"Merge\"].json[\"assistantOverrides\"][\"variableValues\"][\"attempt\"] }} call missed !\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -384,
+        -944
+      ],
+      "id": "6bf3cae9-197a-4581-ac42-d9daef5b789c",
+      "name": "GHL update"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract data from Wait1\nconst data = $input.first().json.assistantOverrides.variableValues;\n\nconst attempt = parseInt(data.attempt || \"0\", 10);\nconst newAttempt = attempt + 1;\n\nreturn [\n  {\n    json: {\n      phone: data.phone,\n      customData: {\n        name: data.userName,\n        phone: data.phone,\n        email: data.email,\n        contact_id: data.contact_id,\n        attempt: newAttempt\n      }\n    }\n  }\n];"
+      },
+      "name": "Increment Attempt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -384,
+        -704
+      ],
+      "id": "901f4947-d945-446c-a078-a1d1ba371a53"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.ibrcloud.com/webhook/1ff20381-efa4-4601-b1ff-d756d032266f",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"{{ $json[\"phone\"] }}\",\n  \"customData\": {\n    \"name\": \"{{ $json[\"customData\"][\"name\"] }}\",\n    \"phone\": \"{{ $json[\"customData\"][\"phone\"] }}\",\n    \"email\": \"{{ $json[\"customData\"][\"email\"] }}\",\n    \"contact_id\": \"{{ $json[\"customData\"][\"contact_id\"] }}\",\n    \"attempt\": \"{{ $json[\"customData\"][\"attempt\"] }}\"\n  }\n}",
+        "options": {}
+      },
+      "name": "Call Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -208,
+        -704
+      ],
+      "id": "8802b62e-6b97-4080-985c-c551c89d249f"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twilio.com/2010-04-01/Accounts/ACf8fb1jjaa0421uu827843b98e476092ce7dd7/Messages.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "Form-URL-Encoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "To",
+              "value": "={{ $item(\"0\").$node[\"Switch1\"].json[\"assistantOverrides\"][\"variableValues\"][\"phone\"] }}"
+            },
+            {
+              "name": "From",
+              "value": "+13159097184"
+            },
+            {
+              "name": "Body",
+              "value": "=Hi {{ $item(\"0\").$node[\"Switch1\"].json[\"assistantOverrides\"][\"variableValues\"][\"userName\"] }} , we tried calling you but missed you. We'll follow up after an hour!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -560,
+        -1120
+      ],
+      "id": "4638f4b7-5c66-400d-ac64-b020dac5bf67",
+      "name": "First message",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "nMxUrH8AAdHsNvcy",
+          "name": "twilio"
+        },
+        "twilioApi": {
+          "id": "8ATt7OxzjXvaEZsy",
+          "name": "Twilio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twilio.com/2010-04-01/Accounts/ACf8fb1ajja042127843b98e476092ce7dd7/Messages.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "Form-URL-Encoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "To",
+              "value": "={{ $item(\"0\").$node[\"Switch1\"].json[\"assistantOverrides\"][\"variableValues\"][\"phone\"] }}"
+            },
+            {
+              "name": "From",
+              "value": "+13159097184"
+            },
+            {
+              "name": "Body",
+              "value": "=Hi {{ $item(\"0\").$node[\"Switch1\"].json[\"assistantOverrides\"][\"variableValues\"][\"userName\"] }} , we tried again calling you but missed you. We'll follow up soon!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -560,
+        -528
+      ],
+      "id": "1b4821f4-1ad9-473b-b6fe-3c7b22878846",
+      "name": "Second messsage",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "nMxUrH8AAdHsNvcy",
+          "name": "twilio"
+        },
+        "twilioApi": {
+          "id": "8ATt7OxzjXvaEZsy",
+          "name": "Twilio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eb650a0a-bcfc-49e0-b159-735dcced1030",
+              "leftValue": "={{!$item(\"0\").$node[\"details\"].json.hasOwnProperty(\"startedAt\")}}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1360,
+        -880
+      ],
+      "id": "58df0f94-4f85-4f61-8394-d2822449baf0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.vapi.ai/call/{{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"call_id\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer dcdb34a8-8fc1-4475-ace0-f2dc6242e218"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1520,
+        -880
+      ],
+      "id": "2eecbbe6-4c2f-4a78-b0ba-9d32eefbbbf1",
+      "name": "details"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -560,
+        -944
+      ],
+      "id": "6db0c072-6e9e-4557-be2e-24042d006014",
+      "name": "Merge"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Increment Attempt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "First message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Second messsage",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "GHL update": {
+      "main": [
+        []
+      ]
+    },
+    "Increment Attempt": {
+      "main": [
+        [
+          {
+            "node": "Call Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "details": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "GHL update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bc958a726789a822ed5a754b2b3d94f96f07e1595b27f5f62f0ec3fab2588497"
+  }
+}
